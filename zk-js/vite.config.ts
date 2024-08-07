@@ -8,5 +8,6 @@ export default defineConfig({
 			entry: resolve(__dirname, 'lib/main.ts'),
 			formats: ['es']
 		}
-	}
+	},
+	assetsInclude: ['**/*.wasm', '**/*.zkey']
 })
