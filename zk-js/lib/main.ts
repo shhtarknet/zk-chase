@@ -1,6 +1,6 @@
 import * as snarkjs from "snarkjs";
-import circuit_wasm_file from "./fixtures/poseidon.wasm";
-import circuit_final_zkey_file from "./fixtures/poseidon.zkey";
+import circuit_wasm_file from "./fixtures/circuit.wasm";
+import circuit_final_zkey_file from "./fixtures/circuit.zkey";
 import verification_key from "./fixtures/vk.json";
 
 export async function proove(inputs: any) {
