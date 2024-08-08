@@ -149,7 +149,7 @@ export class Game extends Scene {
 
   handleLeave() {
     if (!this.layer) return;
-    if (!!this.layer && !this.leave) {
+    if (!this.leave) {
       this.leave = true;
       return;
     }
