@@ -4,7 +4,9 @@ import { Scene } from "phaser";
 
 export class Game extends Scene {
   map: Phaser.Tilemaps.Tilemap | null = null;
-  character: Character | null = null;
+  player: Character | null = null;
+  layer: string = "";
+  leave: boolean = false;
   animatedTiles: any = undefined;
 
   constructor() {
@@ -33,15 +35,16 @@ export class Game extends Scene {
       height: this.renderer.height,
     });
     const tileset = this.map.addTilesetImage("tilemap", "tiles");
+    const leave = this.map.createLayer("Leave", tileset!);
     this.map.createLayer("Ground", tileset!);
     this.map.createLayer("Roads", tileset!);
-    this.map.createLayer("Center", tileset!);
-    this.map.createLayer("North", tileset!);
-    this.map.createLayer("NorthEast", tileset!);
-    this.map.createLayer("NorthWest", tileset!);
-    this.map.createLayer("South", tileset!);
-    this.map.createLayer("SouthEast", tileset!);
-    this.map.createLayer("SouthWest", tileset!);
+    const center = this.map.createLayer("Center", tileset!);
+    const north = this.map.createLayer("North", tileset!);
+    const northeast = this.map.createLayer("NorthEast", tileset!);
+    const northwest = this.map.createLayer("NorthWest", tileset!);
+    const south = this.map.createLayer("South", tileset!);
+    const southeast = this.map.createLayer("SouthEast", tileset!);
+    const southwest = this.map.createLayer("SouthWest", tileset!);
     this.animatedTiles.init(this.map);
 
     // Camera
@@ -66,14 +69,63 @@ export class Game extends Scene {
         maxY: this.map.heightInPixels - 2 * size,
       },
     );
-    this.character = this.add.existing(character);
+    this.player = this.add.existing(character);
+    const hitbox = this.physics.add.existing(this.player.hitbox);
+
+    // Triggers
+    leave!.setTileIndexCallback([130], this.handleLeave, this);
+    center!.setTileIndexCallback(
+      [191, 193, 194, 195, 196, 197, 217, 219, 223, 224, 245, 247, 248, 249],
+      () => this.handleEnter("Center"),
+      this,
+    );
+    north!.setTileIndexCallback(
+      [202, 203, 204, 256, 257, 258],
+      () => this.handleEnter("North"),
+      this,
+    );
+    northeast!.setTileIndexCallback(
+      [202, 203, 204, 206, 232, 256, 257, 258, 260],
+      () => this.handleEnter("NorthEast"),
+      this,
+    );
+    northwest!.setTileIndexCallback(
+      [202, 204, 205, 229, 231, 233, 256, 258, 259],
+      () => this.handleEnter("NorthWest"),
+      this,
+    );
+    south!.setTileIndexCallback(
+      [202, 203, 204, 256, 257, 258],
+      () => this.handleEnter("South"),
+      this,
+    );
+    southeast!.setTileIndexCallback(
+      [202, 204, 205, 229, 231, 233, 256, 258, 259],
+      () => this.handleEnter("SouthEast"),
+      this,
+    );
+    southwest!.setTileIndexCallback(
+      [202, 203, 204, 206, 232, 256, 257, 258, 260],
+      () => this.handleEnter("SouthWest"),
+      this,
+    );
+    this.physics.add.overlap(hitbox, leave!);
+    this.physics.add.overlap(hitbox, center!);
+    this.physics.add.overlap(hitbox, north!);
+    this.physics.add.overlap(hitbox, northeast!);
+    this.physics.add.overlap(hitbox, northwest!);
+    this.physics.add.overlap(hitbox, south!);
+    this.physics.add.overlap(hitbox, southeast!);
+    this.physics.add.overlap(hitbox, southwest!);
 
     // Events
     EventBus.emit("current-scene-ready", this);
   }
 
   update(time: number, delta: number) {
-    this.character?.update();
+    this.player?.update();
+    // Update layer's alpha according to the player position
+    if (!this.player || !this.map) return;
   }
 
   resize(
@@ -85,5 +137,26 @@ export class Game extends Scene {
 
   toGameOver() {
     this.scene.start("GameOver");
+  }
+
+  handleEnter(name: string) {
+    if (this.layer === name) return;
+    this.layer = name;
+    console.log("Enter", this.layer);
+    const layer = this.map!.getLayer(this.layer)?.tilemapLayer;
+    layer!.alpha = 0.5;
+  }
+
+  handleLeave() {
+    if (!this.layer) return;
+    if (!!this.layer && !this.leave) {
+      this.leave = true;
+      return;
+    }
+    console.log("Leave", this.layer);
+    const layer = this.map!.getLayer(this.layer)?.tilemapLayer;
+    layer!.alpha = 1;
+    this.layer = "";
+    this.leave = false;
   }
 }

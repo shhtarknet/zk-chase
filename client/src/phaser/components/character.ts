@@ -1,7 +1,8 @@
 const SPEED: number = 0.5;
 
 export default class Character extends Phaser.GameObjects.Container {
-  protected character: Phaser.GameObjects.Sprite;
+  public character: Phaser.GameObjects.Sprite;
+  public hitbox: Phaser.GameObjects.Rectangle;
   private step: number;
   private targets: { x: number; y: number }[] = [];
   private animation: string = "assassin-black-idle";
@@ -29,6 +30,12 @@ export default class Character extends Phaser.GameObjects.Container {
     );
     this.character.play(this.animation);
 
+    // Hitbox
+    this.hitbox = new Phaser.GameObjects.Rectangle(scene, x, y, 1, 1).setOrigin(
+      0.5,
+      0.5,
+    );
+
     // Bindings
     const W = this.scene.input.keyboard!.addKey("W");
     const A = this.scene.input.keyboard!.addKey("A");
@@ -43,6 +50,7 @@ export default class Character extends Phaser.GameObjects.Container {
 
     // Add to container
     this.add(this.character);
+    this.add(this.hitbox);
   }
 
   update() {
@@ -73,6 +81,8 @@ export default class Character extends Phaser.GameObjects.Container {
       this.play("UP");
       this.character.y -= SPEED;
     }
+    this.hitbox.x = this.character.x;
+    this.hitbox.y = this.character.y;
   }
 
   play(direction: "UP" | "DOWN" | "LEFT" | "RIGHT") {

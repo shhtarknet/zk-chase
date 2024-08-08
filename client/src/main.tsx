@@ -5,8 +5,6 @@ import "./index.css";
 import { setup, SetupResult } from "./dojo/setup.ts";
 import { DojoProvider } from "./dojo/context.tsx";
 import { dojoConfig } from "../dojo.config.ts";
-import { MusicPlayerProvider } from "./contexts/music.tsx";
-import { SoundPlayerProvider } from "./contexts/sound.tsx";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,

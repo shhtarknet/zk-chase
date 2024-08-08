@@ -23,6 +23,12 @@ const config = {
   autoMobilePipeline: true,
   autoRound: true,
   scene: [Boot, Preloader, Game, GameOver],
+  physics: {
+    default: "arcade",
+    arcade: {
+      debug: true,
+    },
+  },
   scale: {
     mode: Phaser.Scale.RESIZE,
     width: "100%",
