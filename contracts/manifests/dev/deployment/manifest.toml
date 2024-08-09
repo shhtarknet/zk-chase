@@ -1,0 +1,139 @@
+[world]
+kind = "WorldContract"
+class_hash = "0x2178527e9556d1aa21d3c2961d28f9114fcfed81b4c3674ed591c50ce46cc9d"
+original_class_hash = "0x2178527e9556d1aa21d3c2961d28f9114fcfed81b4c3674ed591c50ce46cc9d"
+abi = "manifests/dev/deployment/abis/dojo-world.json"
+address = "0x42b91ab594bebff41a9dd5f4ec8b1c6780cbb86ab375a3187d7f54c4af9c639"
+transaction_hash = "0xdd545aa198883cbf32c21bb8e67c6d27e2913176d48dc7e537bc5fdfd2b3f8"
+block_number = 3
+seed = "zkchase"
+manifest_name = "dojo-world"
+
+[world.metadata]
+profile_name = "dev"
+rpc_url = "http://localhost:5050/"
+
+[base]
+kind = "Class"
+class_hash = "0x2427dd10a58850ac9a5ca6ce04b7771b05330fd18f2e481831ad903b969e6b2"
+original_class_hash = "0x2427dd10a58850ac9a5ca6ce04b7771b05330fd18f2e481831ad903b969e6b2"
+abi = "manifests/dev/deployment/abis/dojo-base.json"
+tag = "dojo-base"
+manifest_name = "dojo-base"
+
+[[contracts]]
+kind = "DojoContract"
+address = "0x2b127a5d6a20a34fdb81fd738c7986bfb394228989d12b48787fe98f474ee34"
+class_hash = "0x73d506ab8958bda4c4c8ecb5d3cc806a477aafd4a8c450363ddd2cd654091a6"
+original_class_hash = "0x73d506ab8958bda4c4c8ecb5d3cc806a477aafd4a8c450363ddd2cd654091a6"
+base_class_hash = "0x2427dd10a58850ac9a5ca6ce04b7771b05330fd18f2e481831ad903b969e6b2"
+abi = "manifests/dev/deployment/abis/contracts/zkchase-actions-4ddc6f44.json"
+reads = []
+writes = [
+    "zkchase-Player",
+    "zkchase-Game",
+    "zkchase-Chaser",
+]
+computed = []
+init_calldata = []
+tag = "zkchase-actions"
+manifest_name = "zkchase-actions-4ddc6f44"
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x430849e90f7356c49266e6ade7f462c1feffb9205e2ebd4c8db134dc7b53f42"
+original_class_hash = "0x430849e90f7356c49266e6ade7f462c1feffb9205e2ebd4c8db134dc7b53f42"
+abi = "manifests/dev/deployment/abis/models/zkchase-Chaser-3505463e.json"
+tag = "zkchase-Chaser"
+manifest_name = "zkchase-Chaser-3505463e"
+
+[[models.members]]
+name = "player_id"
+type = "felt252"
+key = true
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "position"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "alive"
+type = "bool"
+key = false
+
+[[models.members]]
+name = "invincible"
+type = "bool"
+key = false
+
+[[models.members]]
+name = "kill_count"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "treasury_count"
+type = "u32"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x61b05d69f4433bd974d309fae640323ca047e31710c0b0f0d99f67088060a19"
+original_class_hash = "0x61b05d69f4433bd974d309fae640323ca047e31710c0b0f0d99f67088060a19"
+abi = "manifests/dev/deployment/abis/models/zkchase-Game-264c1ec0.json"
+tag = "zkchase-Game"
+manifest_name = "zkchase-Game-264c1ec0"
+
+[[models.members]]
+name = "id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "map_id"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "treasury"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "chasers"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "seed"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x5d2da63fed33e7df27075238f5734a35129978d7f70165214db3a34f39d7948"
+original_class_hash = "0x5d2da63fed33e7df27075238f5734a35129978d7f70165214db3a34f39d7948"
+abi = "manifests/dev/deployment/abis/models/zkchase-Player-2999ddc5.json"
+tag = "zkchase-Player"
+manifest_name = "zkchase-Player-2999ddc5"
+
+[[models.members]]
+name = "id"
+type = "felt252"
+key = true
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "name"
+type = "felt252"
+key = false

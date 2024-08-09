@@ -1,0 +1,41 @@
+kind = "DojoModel"
+class_hash = "0x430849e90f7356c49266e6ade7f462c1feffb9205e2ebd4c8db134dc7b53f42"
+original_class_hash = "0x430849e90f7356c49266e6ade7f462c1feffb9205e2ebd4c8db134dc7b53f42"
+abi = "manifests/dev/base/abis/models/zkchase-Chaser-3505463e.json"
+tag = "zkchase-Chaser"
+manifest_name = "zkchase-Chaser-3505463e"
+
+[[members]]
+name = "player_id"
+type = "felt252"
+key = true
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "position"
+type = "u8"
+key = false
+
+[[members]]
+name = "alive"
+type = "bool"
+key = false
+
+[[members]]
+name = "invincible"
+type = "bool"
+key = false
+
+[[members]]
+name = "kill_count"
+type = "u32"
+key = false
+
+[[members]]
+name = "treasury_count"
+type = "u32"
+key = false
