@@ -1,10 +1,11 @@
-import { Player } from "@/dojo/game/models/player";
+import { Player } from "@/dojo/models/player";
 
 class PlayerManager {
   static instance: PlayerManager;
   public player: Player | null = null;
   public username: string = "Nafnlaust";
   public signup: (name: string) => void = (name) => {};
+  public rename: (name: string) => void = (name) => {};
 
   constructor() {
     if (PlayerManager.instance) {
@@ -20,15 +21,19 @@ class PlayerManager {
     return PlayerManager.instance;
   }
 
-  setUsername(username: string) {
-    PlayerManager.instance.username = username;
-  }
-
   setPlayer(player: Player | null) {
     PlayerManager.instance.player = player;
   }
 
+  setUsername(username: string) {
+    PlayerManager.instance.username = username;
+  }
+
   setSignup(action: (name: string) => void) {
+    PlayerManager.instance.signup = action;
+  }
+
+  setRename(action: (name: string) => void) {
     PlayerManager.instance.signup = action;
   }
 
@@ -40,6 +45,16 @@ class PlayerManager {
     )
       return;
     PlayerManager.instance.signup(PlayerManager.instance.username);
+  }
+
+  callRename() {
+    if (
+      !PlayerManager.instance.rename ||
+      !PlayerManager.instance.player ||
+      !PlayerManager.instance.username
+    )
+      return;
+    PlayerManager.instance.rename(PlayerManager.instance.username);
   }
 }
 

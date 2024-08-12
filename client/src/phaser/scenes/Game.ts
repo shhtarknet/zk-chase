@@ -1,6 +1,8 @@
 import Character from "../components/character";
 import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
+import PlayerManager from "../managers/player";
+import GameManager from "../managers/game";
 
 export class Game extends Scene {
   map: Phaser.Tilemaps.Tilemap | null = null;
@@ -59,6 +61,7 @@ export class Game extends Scene {
     const size = this.map!.tileWidth;
     const character = new Character(
       this,
+      (size * 3) / 4,
       (size * 3) / 4,
       (size * 3) / 4,
       size,
@@ -123,7 +126,11 @@ export class Game extends Scene {
   }
 
   update(time: number, delta: number) {
-    this.player?.update();
+    // const player = PlayerManager.getInstance().player;
+    const chaser = GameManager.getInstance().chaser;
+    if (!!chaser) {
+      this.player?.update(chaser);
+    }
     // Update layer's alpha according to the player position
     if (!this.player || !this.map) return;
   }

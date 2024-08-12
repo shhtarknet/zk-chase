@@ -4,28 +4,19 @@ import * as SystemTypes from "./generated/contractSystems";
 import { ClientModels } from "./models";
 import { shortenHex } from "@dojoengine/utils";
 import { Account } from "starknet";
+import { World } from "@dojoengine/recs";
 
 export type SystemCalls = ReturnType<typeof systems>;
 
-export function systems({
-  client,
-  clientModels,
-}: {
-  client: IWorld;
-  clientModels: ClientModels;
-}) {
+export function systems(
+  { client }: { client: IWorld },
+  { Player, Game, Chaser }: ClientModels,
+  world: World,
+) {
   const TOAST_ID = "unique-id";
 
   const extractedMessage = (message: string) => {
     return message.match(/\('([^']+)'\)/)?.[1];
-  };
-
-  const isMdOrLarger = (): boolean => {
-    return window.matchMedia("(min-width: 768px)").matches;
-  };
-
-  const isSmallHeight = (): boolean => {
-    return window.matchMedia("(max-height: 768px)").matches;
   };
 
   const getToastAction = (transaction_hash: string) => {
@@ -42,10 +33,6 @@ export function systems({
     | "top-center"
     | "bottom-center"
     | "bottom-right" => {
-    if (!isMdOrLarger()) {
-      // if mobile
-      return isSmallHeight() ? "top-center" : "bottom-center";
-    }
     return "bottom-right";
   };
 
@@ -111,8 +98,35 @@ export function systems({
     );
   };
 
+  const create = async ({ account, ...props }: SystemTypes.Create) => {
+    await handleTransaction(
+      account,
+      () => client.actions.create({ account, ...props }),
+      "Game has been created.",
+    );
+  };
+
+  const join = async ({ account, ...props }: SystemTypes.Join) => {
+    await handleTransaction(
+      account,
+      () => client.actions.join({ account, ...props }),
+      "Player has joined the game.",
+    );
+  };
+
+  const move = async ({ account, ...props }: SystemTypes.Move) => {
+    await handleTransaction(
+      account,
+      () => client.actions.move({ account, ...props }),
+      "Chaser has moved.",
+    );
+  };
+
   return {
     signup,
     rename,
+    create,
+    join,
+    move,
   };
 }
