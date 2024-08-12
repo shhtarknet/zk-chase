@@ -18,8 +18,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        display: ["Norse", "sans"],
-        body: ["Norse", "sans"],
+        display: ["Indie Flower", "sans"],
+        body: ["Indie Flower", "sans"],
       },
       colors: {
         border: "hsl(var(--border))",

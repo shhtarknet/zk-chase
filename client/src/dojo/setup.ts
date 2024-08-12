@@ -1,4 +1,3 @@
-import { getSyncEntities } from "@dojoengine/state";
 import * as torii from "@dojoengine/torii-client";
 import { models } from "./models.ts";
 import { systems } from "./systems.ts";
@@ -9,13 +8,14 @@ import { Config } from "../../dojo.config.ts";
 import { setupWorld } from "./generated/contractSystems.ts";
 import { DojoProvider } from "@dojoengine/core";
 import { BurnerManager } from "@dojoengine/create-burner";
-import { Account, RpcProvider } from "starknet";
+import { getSyncEntities } from "@dojoengine/state";
+import { Account, WeierstrassSignatureType } from "starknet";
 
 export type SetupResult = Awaited<ReturnType<typeof setup>>;
 
 export async function setup({ ...config }: Config) {
   // torii client
-  const toriiClient = await torii.createClient([], {
+  const toriiClient = await torii.createClient({
     rpcUrl: config.rpcUrl,
     toriiUrl: config.toriiUrl,
     relayUrl: "",
@@ -29,10 +29,19 @@ export async function setup({ ...config }: Config) {
   const clientModels = models({ contractModels });
 
   // fetch all existing entities from torii
+  const dojoProvider = new DojoProvider(config.manifest, config.rpcUrl);
   const sync = await getSyncEntities(
     toriiClient,
     contractModels as any,
-    [],
+    [
+      {
+        Keys: {
+          keys: [],
+          pattern_matching: "VariableLen",
+          models: [],
+        },
+      },
+    ],
     1000,
   );
 
@@ -41,20 +50,17 @@ export async function setup({ ...config }: Config) {
     config,
   );
 
-  const rpcProvider = new RpcProvider({
-    nodeUrl: config.rpcUrl,
-  });
-
   const burnerManager = new BurnerManager({
     masterAccount: new Account(
-      rpcProvider,
+      {
+        nodeUrl: config.rpcUrl,
+      },
       config.masterAddress,
       config.masterPrivateKey,
     ),
-    feeTokenAddress: config.feeTokenAddress,
     accountClassHash: config.accountClassHash,
-
-    rpcProvider,
+    rpcProvider: dojoProvider.provider,
+    feeTokenAddress: config.feeTokenAddress,
   });
 
   try {
@@ -70,11 +76,17 @@ export async function setup({ ...config }: Config) {
     client,
     clientModels,
     contractComponents: clientModels,
-    systemCalls: systems({ client, clientModels }),
+    systemCalls: systems({ client }, clientModels, world),
+    publish: (typedData: string, signature: WeierstrassSignatureType) => {
+      toriiClient.publishMessage(typedData, {
+        r: signature.r.toString(),
+        s: signature.s.toString(),
+      });
+    },
     config,
-    world,
+    dojoProvider,
     burnerManager,
-    rpcProvider,
+    toriiClient,
     sync,
   };
 }

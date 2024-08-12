@@ -16,34 +16,21 @@ export interface Rename extends Signer {
   name: string;
 }
 
-export interface Start extends Signer {}
+export interface Create extends Signer {}
 
-export interface Hire extends Signer {
-  builderId: number;
+export interface Join extends Signer {
+  gameId: number;
 }
 
-export interface Select extends Signer {
-  buildingId: number;
-}
-
-export interface Send extends Signer {
-  builderId: number;
-  buildingId: number;
-}
-
-export interface Buy extends Signer {
-  quantity: number;
-}
-
-export interface Sell extends Signer {
-  quantity: number;
+export interface Move extends Signer {
+  direction: number;
 }
 
 export type IWorld = Awaited<ReturnType<typeof setupWorld>>;
 
 export const getContractByName = (manifest: any, name: string) => {
   const contract = manifest.contracts.find((contract: any) =>
-    contract.name.includes("::" + name),
+    contract.tag.includes("::" + name),
   );
   if (contract) {
     return contract.address;
@@ -53,12 +40,13 @@ export const getContractByName = (manifest: any, name: string) => {
 };
 
 export async function setupWorld(provider: DojoProvider, config: Config) {
+  const namespace = "zkchase";
   const details: UniversalDetails | undefined = undefined; // { maxFee: 1e15 };
 
   function actions() {
     const contract_name = "actions";
     const contract = config.manifest.contracts.find((c: any) =>
-      c.name.includes(contract_name),
+      c.tag.includes(contract_name),
     );
     if (!contract) {
       throw new Error(`Contract ${contract_name} not found in manifest`);
@@ -72,8 +60,9 @@ export async function setupWorld(provider: DojoProvider, config: Config) {
           {
             contractName: contract_name,
             entrypoint: "signup",
-            calldata: [provider.getWorldAddress(), encoded_name],
+            calldata: [encoded_name],
           },
+          namespace,
           details,
         );
       } catch (error) {
@@ -90,8 +79,28 @@ export async function setupWorld(provider: DojoProvider, config: Config) {
           {
             contractName: contract_name,
             entrypoint: "rename",
-            calldata: [provider.getWorldAddress(), encoded_name],
+            calldata: [encoded_name],
           },
+          namespace,
+          details,
+        );
+      } catch (error) {
+        console.error("Error executing rename:", error);
+        throw error;
+      }
+    };
+
+    const create = async ({ account }: Create) => {
+      try {
+        return await provider.execute(
+          account,
+          {
+            contractName: contract_name,
+            entrypoint: "create",
+            calldata: [],
+          },
+
+          namespace,
           details,
         );
       } catch (error) {
@@ -100,104 +109,38 @@ export async function setupWorld(provider: DojoProvider, config: Config) {
       }
     };
 
-    const start = async ({ account }: Start) => {
+    const join = async ({ account, gameId }: Join) => {
       try {
         return await provider.execute(
           account,
           {
             contractName: contract_name,
-            entrypoint: "start",
-            calldata: [provider.getWorldAddress()],
+            entrypoint: "join",
+            calldata: [gameId],
           },
+          namespace,
           details,
         );
       } catch (error) {
-        console.error("Error executing start:", error);
+        console.error("Error executing join:", error);
         throw error;
       }
     };
 
-    const hire = async ({ account, builderId }: Hire) => {
+    const move = async ({ account, direction }: Move) => {
       try {
         return await provider.execute(
           account,
           {
             contractName: contract_name,
-            entrypoint: "hire",
-            calldata: [provider.getWorldAddress(), builderId],
+            entrypoint: "move",
+            calldata: [direction],
           },
+          namespace,
           details,
         );
       } catch (error) {
-        console.error("Error executing hire:", error);
-        throw error;
-      }
-    };
-
-    const select = async ({ account, buildingId }: Select) => {
-      try {
-        return await provider.execute(
-          account,
-          {
-            contractName: contract_name,
-            entrypoint: "select",
-            calldata: [provider.getWorldAddress(), buildingId],
-          },
-          details,
-        );
-      } catch (error) {
-        console.error("Error executing select:", error);
-        throw error;
-      }
-    };
-
-    const send = async ({ account, builderId, buildingId }: Send) => {
-      try {
-        return await provider.execute(
-          account,
-          {
-            contractName: contract_name,
-            entrypoint: "send",
-            calldata: [provider.getWorldAddress(), builderId, buildingId],
-          },
-          details,
-        );
-      } catch (error) {
-        console.error("Error executing send:", error);
-        throw error;
-      }
-    };
-
-    const buy = async ({ account, quantity }: Buy) => {
-      try {
-        return await provider.execute(
-          account,
-          {
-            contractName: contract_name,
-            entrypoint: "buy",
-            calldata: [provider.getWorldAddress(), quantity],
-          },
-          details,
-        );
-      } catch (error) {
-        console.error("Error executing buy:", error);
-        throw error;
-      }
-    };
-
-    const sell = async ({ account, quantity }: Sell) => {
-      try {
-        return await provider.execute(
-          account,
-          {
-            contractName: contract_name,
-            entrypoint: "sell",
-            calldata: [provider.getWorldAddress(), quantity],
-          },
-          details,
-        );
-      } catch (error) {
-        console.error("Error executing sell:", error);
+        console.error("Error executing move:", error);
         throw error;
       }
     };
@@ -206,12 +149,9 @@ export async function setupWorld(provider: DojoProvider, config: Config) {
       address: contract.address,
       signup,
       rename,
-      start,
-      hire,
-      select,
-      send,
-      buy,
-      sell,
+      create,
+      join,
+      move,
     };
   }
 

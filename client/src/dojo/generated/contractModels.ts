@@ -8,42 +8,41 @@ export type ContractComponents = Awaited<
 
 export function defineContractComponents(world: World) {
   return {
+    Chaser: (() => {
+      return defineComponent(
+        world,
+        {
+          player_id: RecsType.BigInt,
+          game_id: RecsType.Number,
+          position: RecsType.Number,
+          alive: RecsType.Boolean,
+          invincible: RecsType.Boolean,
+          kill_count: RecsType.Number,
+          treasury_count: RecsType.Number,
+        },
+        {
+          metadata: {
+            name: "zkchase-Chaser",
+            types: ["felt252", "u32", "u8", "bool", "bool", "u32", "u32"],
+            customTypes: [],
+          },
+        },
+      );
+    })(),
     Game: (() => {
       return defineComponent(
         world,
         {
           id: RecsType.Number,
-          over: RecsType.Boolean,
-          score: RecsType.Number,
-          action: RecsType.Number,
-          gold: RecsType.Number,
-          buildings: RecsType.BigInt,
-          constructions: RecsType.BigInt,
-          structures: RecsType.BigInt,
-          builders: RecsType.BigInt,
-          workers: RecsType.BigInt,
-          works: RecsType.BigInt,
+          map_id: RecsType.Number,
+          treasury: RecsType.Number,
+          chasers: RecsType.BigInt,
           seed: RecsType.BigInt,
-          player_id: RecsType.BigInt,
         },
         {
           metadata: {
-            name: "Game",
-            types: [
-              "u32",
-              "bool",
-              "u8",
-              "u8",
-              "u16",
-              "u64",
-              "u64",
-              "u64",
-              "u64",
-              "u64",
-              "felt252",
-              "felt252",
-              "felt252",
-            ],
+            name: "zkchase-Game",
+            types: ["u32", "u8", "u8", "felt252", "felt252"],
             customTypes: [],
           },
         },
@@ -59,7 +58,7 @@ export function defineContractComponents(world: World) {
         },
         {
           metadata: {
-            name: "Player",
+            name: "zkchase-Player",
             types: ["felt252", "u32", "felt252"],
             customTypes: [],
           },

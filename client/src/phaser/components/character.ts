@@ -1,9 +1,13 @@
+import { Chaser } from "@/dojo/models/chaser";
+import GameManager from "../managers/game";
+
 const SPEED: number = 0.5;
 
 export default class Character extends Phaser.GameObjects.Container {
   public character: Phaser.GameObjects.Sprite;
   public hitbox: Phaser.GameObjects.Rectangle;
   private step: number;
+  private offset: number;
   private targets: { x: number; y: number }[] = [];
   private animation: string = "assassin-black-idle";
   private bounds: { minX: number; minY: number; maxX: number; maxY: number };
@@ -12,6 +16,7 @@ export default class Character extends Phaser.GameObjects.Container {
     scene: Phaser.Scene,
     x: number,
     y: number,
+    offset: number,
     step: number,
     bounds: { minX: number; minY: number; maxX: number; maxY: number },
   ) {
@@ -19,6 +24,7 @@ export default class Character extends Phaser.GameObjects.Container {
 
     // Parameters
     this.step = step;
+    this.offset = offset;
     this.bounds = bounds;
 
     // Images
@@ -53,8 +59,18 @@ export default class Character extends Phaser.GameObjects.Container {
     this.add(this.hitbox);
   }
 
-  update() {
+  update(chaser: Chaser) {
     if (!this.targets.length) {
+      const x = this.step * chaser.getX() + this.offset;
+      const y = this.step * chaser.getY() + this.offset;
+      // Sync real position
+      if (this.character.x !== x || this.character.y !== y) {
+        this.character.x = this.step * chaser.getX() + this.offset;
+        this.character.y = this.step * chaser.getY() + this.offset;
+        this.hitbox.x = this.character.x;
+        this.hitbox.y = this.character.y;
+      }
+      // Update animation
       if (this.animation !== "assassin-black-idle") {
         this.animation = "assassin-black-idle";
         this.character.play(this.animation);
@@ -124,21 +140,25 @@ export default class Character extends Phaser.GameObjects.Container {
         const up = { x: initial.x, y: initial.y - this.step };
         if (up.y < this.bounds.minY) return;
         this.targets.push(up);
+        GameManager.getInstance().callMoveUp();
         break;
       case "DOWN":
         const down = { x: initial.x, y: initial.y + this.step };
         if (down.y > this.bounds.maxY) return;
         this.targets.push(down);
+        GameManager.getInstance().callMoveDown();
         break;
       case "LEFT":
         const left = { x: initial.x - this.step, y: initial.y };
         if (left.x < this.bounds.minX) return;
         this.targets.push(left);
+        GameManager.getInstance().callMoveLeft();
         break;
       case "RIGHT":
         const right = { x: initial.x + this.step, y: initial.y };
         if (right.x > this.bounds.maxX) return;
         this.targets.push(right);
+        GameManager.getInstance().callMoveRight();
         break;
     }
   }
