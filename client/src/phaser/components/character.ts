@@ -1,16 +1,22 @@
 import { Chaser } from "@/dojo/models/chaser";
 import GameManager from "../managers/game";
 
-const SPEED: number = 0.5;
+const SPEED: number = 1;
 
 export default class Character extends Phaser.GameObjects.Container {
-  public character: Phaser.GameObjects.Sprite;
+  public hidden: boolean = false;
   public hitbox: Phaser.GameObjects.Rectangle;
+  public character: Phaser.GameObjects.Sprite;
+  private shadow1: Phaser.GameObjects.Sprite;
+  private shadow2: Phaser.GameObjects.Sprite;
+  private shadow3: Phaser.GameObjects.Sprite;
+  private smoke: Phaser.GameObjects.Sprite;
   private step: number;
   private offset: number;
-  private targets: { x: number; y: number }[] = [];
+  private target: { x: number; y: number } | null = null;
   private animation: string = "assassin-black-idle";
   private bounds: { minX: number; minY: number; maxX: number; maxY: number };
+  private binded: boolean = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -19,6 +25,7 @@ export default class Character extends Phaser.GameObjects.Container {
     offset: number,
     step: number,
     bounds: { minX: number; minY: number; maxX: number; maxY: number },
+    binded: boolean,
   ) {
     super(scene, x, y);
 
@@ -26,6 +33,7 @@ export default class Character extends Phaser.GameObjects.Container {
     this.step = step;
     this.offset = offset;
     this.bounds = bounds;
+    this.binded = binded;
 
     // Images
     this.character = new Phaser.GameObjects.Sprite(
@@ -35,6 +43,17 @@ export default class Character extends Phaser.GameObjects.Container {
       "assassin-black",
     );
     this.character.play(this.animation);
+    this.shadow1 = new Phaser.GameObjects.Sprite(scene, x, y, "assassin-black");
+    this.shadow1.setTint(0x777777);
+    this.shadow1.setVisible(false);
+    this.shadow2 = new Phaser.GameObjects.Sprite(scene, x, y, "assassin-black");
+    this.shadow2.setTint(0x444444);
+    this.shadow2.setVisible(false);
+    this.shadow3 = new Phaser.GameObjects.Sprite(scene, x, y, "assassin-black");
+    this.shadow3.setTint(0x111111);
+    this.shadow3.setVisible(false);
+    this.smoke = new Phaser.GameObjects.Sprite(scene, x, y, "smoke");
+    this.smoke.setVisible(false);
 
     // Hitbox
     this.hitbox = new Phaser.GameObjects.Rectangle(scene, x, y, 1, 1).setOrigin(
@@ -43,32 +62,63 @@ export default class Character extends Phaser.GameObjects.Container {
     );
 
     // Bindings
+    if (binded) {
+      this.bind();
+    }
+
+    // Depths
+    this.shadow2.setDepth(0);
+    this.shadow1.setDepth(1);
+    this.character.setDepth(2);
+    this.hitbox.setDepth(3);
+    this.smoke.setDepth(4);
+
+    // Add to container
+    this.add(this.character);
+    this.add(this.shadow1);
+    this.add(this.shadow2);
+    this.add(this.hitbox);
+    this.add(this.smoke);
+    this.sort("depth");
+  }
+
+  bind() {
     const W = this.scene.input.keyboard!.addKey("W");
     const A = this.scene.input.keyboard!.addKey("A");
     const S = this.scene.input.keyboard!.addKey("S");
     const D = this.scene.input.keyboard!.addKey("D");
-
     // Listeners
     W.on("down", () => this.move("UP"));
     A.on("down", () => this.move("LEFT"));
     S.on("down", () => this.move("DOWN"));
     D.on("down", () => this.move("RIGHT"));
-
-    // Add to container
-    this.add(this.character);
-    this.add(this.hitbox);
   }
 
   update(chaser: Chaser) {
-    if (!this.targets.length) {
+    if (!this.visible) return;
+
+    if (GameManager.getInstance().processing && this.binded) {
+      this.stand("DOWN");
+      return;
+    }
+
+    if (!this.target) {
+      // Sync real position
       const x = this.step * chaser.getX() + this.offset;
       const y = this.step * chaser.getY() + this.offset;
-      // Sync real position
       if (this.character.x !== x || this.character.y !== y) {
         this.character.x = this.step * chaser.getX() + this.offset;
         this.character.y = this.step * chaser.getY() + this.offset;
+        this.shadow1.x = this.character.x;
+        this.shadow1.y = this.character.y;
+        this.shadow2.x = this.character.x;
+        this.shadow2.y = this.character.y;
+        this.shadow3.x = this.character.x;
+        this.shadow3.y = this.character.y;
         this.hitbox.x = this.character.x;
         this.hitbox.y = this.character.y;
+        this.smoke.x = this.character.x;
+        this.smoke.y = this.character.y;
       }
       // Update animation
       if (this.animation !== "assassin-black-idle") {
@@ -78,88 +128,119 @@ export default class Character extends Phaser.GameObjects.Container {
       return;
     }
 
-    const target = this.targets[0];
-    if (this.character.x === target.x && this.character.y === target.y) {
-      this.targets.shift();
+    if (
+      this.character.x === this.target.x &&
+      this.character.y === this.target.y
+    ) {
+      this.target = null;
+      setTimeout(() => this.shadow1.setVisible(false), 75);
+      setTimeout(() => this.shadow2.setVisible(false), 125);
+      setTimeout(() => this.shadow3.setVisible(false), 175);
       return;
     }
 
-    if (this.character.x < target.x) {
+    const speed = this.hidden ? SPEED / 2 : SPEED;
+    this.shadow1.setVisible(!this.hidden);
+    this.shadow2.setVisible(!this.hidden);
+    this.shadow3.setVisible(!this.hidden);
+    if (this.character.x < this.target.x) {
       this.play("RIGHT");
-      this.character.x += SPEED;
-    } else if (this.character.x > target.x) {
+      const dx = Math.min(this.target.x - this.character.x, speed);
+      this.character.x += dx;
+      setTimeout(() => (this.shadow1.x += dx), 75);
+      setTimeout(() => (this.shadow2.x += dx), 125);
+      setTimeout(() => (this.shadow3.x += dx), 175);
+    } else if (this.character.x > this.target.x) {
       this.play("LEFT");
-      this.character.x -= SPEED;
-    } else if (this.character.y < target.y) {
+      const dx = Math.min(this.character.x - this.target.x, speed);
+      this.character.x -= dx;
+      setTimeout(() => (this.shadow1.x -= dx), 75);
+      setTimeout(() => (this.shadow2.x -= dx), 125);
+      setTimeout(() => (this.shadow3.x -= dx), 175);
+    } else if (this.character.y < this.target.y) {
       this.play("DOWN");
-      this.character.y += SPEED;
-    } else if (this.character.y > target.y) {
+      const dy = Math.min(this.target.y - this.character.y, speed);
+      this.character.y += dy;
+      setTimeout(() => (this.shadow1.y += dy), 75);
+      setTimeout(() => (this.shadow2.y += dy), 125);
+      setTimeout(() => (this.shadow3.y += dy), 175);
+    } else if (this.character.y > this.target.y) {
       this.play("UP");
-      this.character.y -= SPEED;
+      const dy = Math.min(this.character.y - this.target.y, speed);
+      this.character.y -= dy;
+      setTimeout(() => (this.shadow1.y -= dy), 75);
+      setTimeout(() => (this.shadow2.y -= dy), 125);
+      setTimeout(() => (this.shadow3.y -= dy), 175);
     }
     this.hitbox.x = this.character.x;
     this.hitbox.y = this.character.y;
+    this.smoke.x = this.character.x;
+    this.smoke.y = this.character.y;
+  }
+
+  stand(direction: "UP" | "DOWN" | "LEFT" | "RIGHT") {
+    const animation = this.hidden
+      ? `assassin-black-${direction.toLowerCase()}`
+      : `assassin-black-stand-${direction.toLowerCase()}`;
+    if (this.animation !== animation) {
+      this.animation = animation;
+      this.character.play(this.animation);
+    }
   }
 
   play(direction: "UP" | "DOWN" | "LEFT" | "RIGHT") {
-    switch (direction) {
-      case "UP":
-        if (this.animation !== "assassin-black-move-up") {
-          this.animation = "assassin-black-move-up";
-          this.character.play(this.animation);
-        }
-        break;
-      case "DOWN":
-        if (this.animation !== "assassin-black-move-down") {
-          this.animation = "assassin-black-move-down";
-          this.character.play(this.animation);
-        }
-        break;
-      case "LEFT":
-        if (this.animation !== "assassin-black-move-left") {
-          this.animation = "assassin-black-move-left";
-          this.character.play(this.animation);
-        }
-        break;
-      case "RIGHT":
-        if (this.animation !== "assassin-black-move-right") {
-          this.animation = "assassin-black-move-right";
-          this.character.play(this.animation);
-        }
-        break;
+    const type = this.hidden ? "move" : "dash";
+    const animation = `assassin-black-${type}-${direction.toLowerCase()}`;
+    if (this.animation !== animation) {
+      this.animation = animation;
+      this.character.play(this.animation);
+      setTimeout(() => this.shadow1.play(this.animation), 75);
+      setTimeout(() => this.shadow2.play(this.animation), 125);
+      setTimeout(() => this.shadow3.play(this.animation), 175);
     }
   }
 
   move(direction: "UP" | "DOWN" | "LEFT" | "RIGHT") {
-    const initial =
-      this.targets.length === 0
-        ? { x: this.character.x, y: this.character.y }
-        : this.targets[this.targets.length - 1];
+    if (!!this.target || !this.visible) return;
+    const initial = { x: this.character.x, y: this.character.y };
     switch (direction) {
       case "UP":
         const up = { x: initial.x, y: initial.y - this.step };
         if (up.y < this.bounds.minY) return;
-        this.targets.push(up);
+        this.target = up;
         GameManager.getInstance().callMoveUp();
         break;
       case "DOWN":
         const down = { x: initial.x, y: initial.y + this.step };
         if (down.y > this.bounds.maxY) return;
-        this.targets.push(down);
+        this.target = down;
         GameManager.getInstance().callMoveDown();
         break;
       case "LEFT":
         const left = { x: initial.x - this.step, y: initial.y };
         if (left.x < this.bounds.minX) return;
-        this.targets.push(left);
+        this.target = left;
         GameManager.getInstance().callMoveLeft();
         break;
       case "RIGHT":
         const right = { x: initial.x + this.step, y: initial.y };
         if (right.x > this.bounds.maxX) return;
-        this.targets.push(right);
+        this.target = right;
         GameManager.getInstance().callMoveRight();
         break;
     }
+  }
+
+  hide() {
+    this.character.setAlpha(0.75);
+    this.smoke.setVisible(true);
+    this.smoke.play("smoke");
+    this.hidden = true;
+  }
+
+  show() {
+    this.character.setAlpha(1);
+    this.smoke.setVisible(false);
+    this.hidden = false;
   }
 }

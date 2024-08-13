@@ -26,10 +26,7 @@ export class GameOver extends Scene {
   }
 
   update() {
-    if (
-      !!GameManager.getInstance().game &&
-      !GameManager.getInstance()?.game?.isOver()
-    ) {
+    if (!!GameManager.getInstance().game) {
       this.toGame();
     }
     this.start?.update();
