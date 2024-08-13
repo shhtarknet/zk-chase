@@ -38,6 +38,15 @@ class AnimationManager {
       repeat: -1,
     });
     scene.anims.create({
+      key: `assassin-black-death`,
+      frames: scene.anims.generateFrameNumbers(`assassin-black`, {
+        start: 24,
+        end: 24,
+      }),
+      frameRate: 2,
+      repeat: 0,
+    });
+    scene.anims.create({
       key: `assassin-black-move-down`,
       frames: scene.anims.generateFrameNumbers(`assassin-black`, {
         start: 1,

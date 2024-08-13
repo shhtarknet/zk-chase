@@ -2,7 +2,6 @@ import { useDojo } from "@/dojo/useDojo";
 import { useCallback, useMemo, useState } from "react";
 import { Account } from "starknet";
 import { Button } from "@/ui/elements/button";
-import { useGame } from "@/hooks/useGame";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useNavigate } from "react-router-dom";
 import { useChaser } from "@/hooks/useChaser";
@@ -42,7 +41,13 @@ export const Join = ({ gameId }: { gameId: number }) => {
   }, [account, gameId]);
 
   const disabled = useMemo(() => {
-    return !account || !master || account === master || !player || !!chaser;
+    return (
+      !account ||
+      !master ||
+      account === master ||
+      !player ||
+      (!!chaser && chaser.alive)
+    );
   }, [account, master, player, chaser]);
 
   return (

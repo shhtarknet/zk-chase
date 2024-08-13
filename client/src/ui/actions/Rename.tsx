@@ -5,12 +5,12 @@ import { Button } from "@/ui/elements/button";
 import { usePlayer } from "@/hooks/usePlayer";
 import { Input } from "../elements/input";
 
-export const Signup = () => {
+export const Rename = () => {
   const {
     account: { account },
     master,
     setup: {
-      systemCalls: { signup },
+      systemCalls: { rename },
     },
   } = useDojo();
   const [name, setName] = useState("");
@@ -23,7 +23,7 @@ export const Signup = () => {
     if (!name) return;
     setIsLoading(true);
     try {
-      await signup({
+      await rename({
         account: account as Account,
         name,
       });
@@ -33,7 +33,7 @@ export const Signup = () => {
   }, [account, name]);
 
   const disabled = useMemo(() => {
-    return !account || !master || account === master || !!player || !name;
+    return !account || !master || account === master || !player || !name;
   }, [account, master, player, name]);
 
   return (
@@ -50,7 +50,7 @@ export const Signup = () => {
         onClick={handleClick}
         className="text-xl"
       >
-        Signup
+        Rename
       </Button>
     </div>
   );

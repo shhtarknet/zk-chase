@@ -7,8 +7,14 @@ import Treasury from "../components/treasury";
 
 export class Game extends Scene {
   map: Phaser.Tilemaps.Tilemap | null = null;
+  bounds: { minX: number; minY: number; maxX: number; maxY: number } = {
+    minX: 0,
+    minY: 0,
+    maxX: 0,
+    maxY: 0,
+  };
   player: Character | null = null;
-  chasers: Character[] = [];
+  chasers: { [key: string]: Character } = {};
   treasury: Treasury | null = null;
   layer: string = "";
   leave: boolean = false;
@@ -51,6 +57,13 @@ export class Game extends Scene {
     const southeast = this.map.createLayer("SouthEast", tileset!);
     const southwest = this.map.createLayer("SouthWest", tileset!);
     this.animatedTiles.init(this.map);
+    const size = this.map!.tileWidth;
+    this.bounds = {
+      minX: 0,
+      minY: 0,
+      maxX: this.map.widthInPixels - 2 * size,
+      maxY: this.map.heightInPixels - 2 * size,
+    };
 
     // Camera
     this.cameras.main.scaleManager.scaleMode = Phaser.Scale.ScaleModes.RESIZE;
@@ -61,19 +74,13 @@ export class Game extends Scene {
       -this.renderer.height / 2 + this.map.heightInPixels / 2;
 
     // Unit
-    const size = this.map!.tileWidth;
     const character = new Character(
       this,
       (size * 3) / 4,
       (size * 3) / 4,
       (size * 3) / 4,
       size,
-      {
-        minX: 0,
-        minY: 0,
-        maxX: this.map.widthInPixels - 2 * size,
-        maxY: this.map.heightInPixels - 2 * size,
-      },
+      this.bounds,
       true,
     );
     this.player = this.add.existing(character);
@@ -128,22 +135,21 @@ export class Game extends Scene {
       () => this.handleEnter("SouthWest"),
       this,
     );
-    this.physics.add.overlap(hitbox, leave!);
-    this.physics.add.overlap(hitbox, center!);
-    this.physics.add.overlap(hitbox, north!);
-    this.physics.add.overlap(hitbox, northeast!);
-    this.physics.add.overlap(hitbox, northwest!);
-    this.physics.add.overlap(hitbox, south!);
-    this.physics.add.overlap(hitbox, southeast!);
-    this.physics.add.overlap(hitbox, southwest!);
+    this.setOverlaps(hitbox);
 
     // Depths
     this.treasury.setDepth(0);
-    this.chasers.forEach((chaser) => chaser.setDepth(2));
-    this.player.setDepth(4);
+    this.player.setDepth(1);
 
     // Events
     EventBus.emit("current-scene-ready", this);
+  }
+
+  setOverlaps(hitbox: Phaser.GameObjects.Rectangle) {
+    const layers = this.map!.layers;
+    layers.forEach((layer) => {
+      this.physics.add.overlap(hitbox, layer.tilemapLayer);
+    });
   }
 
   update() {
@@ -152,7 +158,7 @@ export class Game extends Scene {
     if (!!game && !!this.treasury) {
       this.treasury.update(game.getTreasuryX(), game.getTreasuryY());
     }
-    // Update player
+    // Update player chaser
     const chaser = GameManager.getInstance().chaser;
     if (!!chaser) {
       this.player?.setVisible(true);
@@ -160,8 +166,9 @@ export class Game extends Scene {
     }
     // Update chasers
     const chasers = GameManager.getInstance().chasers;
-    if (chasers.length !== this.chasers.length) {
-      this.chasers = chasers.map((chaser) => {
+    Object.values(chasers).forEach((chaser) => {
+      if (!this.chasers[chaser.getKey()]) {
+        // Create new chaser not already registered
         const size = this.map!.tileWidth;
         const character = new Character(
           this,
@@ -169,24 +176,16 @@ export class Game extends Scene {
           (size * 3) / 4,
           (size * 3) / 4,
           size,
-          {
-            minX: 0,
-            minY: 0,
-            maxX: this.map!.widthInPixels - 2 * size,
-            maxY: this.map!.heightInPixels - 2 * size,
-          },
+          this.bounds,
           false,
         );
-        return this.add.existing(character);
-      });
-    }
-    if (this.chasers.length) {
-      this.chasers.forEach((chaser, index) => {
-        chaser.update(chasers[index]);
-      });
-    }
-    // Update layer's alpha according to the player position
-    if (!this.player || !this.map) return;
+        this.chasers[chaser.getKey()] = this.add.existing(character);
+        this.setOverlaps(character.hitbox);
+      } else {
+        // Update others
+        this.chasers[chaser.getKey()]?.update(chaser);
+      }
+    });
   }
 
   resize(

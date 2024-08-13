@@ -9,8 +9,8 @@ export default class Treasury extends Phaser.GameObjects.Container {
   private nextY: number;
   private step: number;
   private offset: number;
-  private dx: number = 4;
-  private dy: number = -2;
+  private dx: number = -2;
+  private dy: number = 4;
 
   constructor(
     scene: Phaser.Scene,
