@@ -68,7 +68,7 @@ impl MapImpl of MapTrait {
         let trees: felt252 = self.trees();
         let bitmap: u256 = spawns.into() | trees.into() | excluded.into();
         let mut deck: Deck = DeckTrait::from_bitmap(seed, self.size(), bitmap);
-        deck.draw()
+        deck.draw() - 1
     }
 
     #[inline]
@@ -76,7 +76,7 @@ impl MapImpl of MapTrait {
         let spawns: felt252 = self.spawns();
         let bitmap: u256 = ~spawns.into();
         let mut deck: Deck = DeckTrait::from_bitmap(seed, self.size(), bitmap);
-        deck.draw()
+        deck.draw() - 1
     }
 
     #[inline]

@@ -72,3 +72,36 @@ fn test_actions_move_kill() {
     assert(anyone_chaser.kill_count == 0, 'Anyone kill count');
     assert(!anyone_chaser.alive, 'Anyone alive status');
 }
+
+#[test]
+fn test_actions_move_top_left() {
+    // [Setup]
+    let (world, systems, context) = setup::spawn_game();
+    let store = StoreTrait::new(world);
+
+    // [Join]
+    systems.actions.join(context.game_id);
+
+    // [Move]
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Left.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+    systems.actions.move(Direction::Up.into());
+
+    // [Assert] Chaser
+    let chaser = store.chaser(context.player_id, context.game_id);
+    assert(chaser.position == 0, 'Chaser position');
+}

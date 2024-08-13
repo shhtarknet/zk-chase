@@ -6,11 +6,6 @@ use core::dict::{Felt252Dict, Felt252DictTrait};
 use core::hash::HashStateTrait;
 use core::poseidon::PoseidonTrait;
 
-// Constants
-
-const TWO_POW_1: u256 = 0x2;
-const MASK_1: u256 = 0x1;
-
 
 /// Deck struct.
 #[derive(Destruct)]
@@ -45,10 +40,10 @@ pub impl DeckImpl of DeckTrait {
             if bitmap == 0 || card.into() > number {
                 break;
             };
-            if bitmap & MASK_1 == 1 {
+            if bitmap % 2 == 1 {
                 deck.withdraw(card);
             }
-            bitmap /= TWO_POW_1;
+            bitmap /= 2;
             card += 1;
         };
         deck
