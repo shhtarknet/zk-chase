@@ -2,7 +2,6 @@ import { ModeToggle } from "@/ui/components/Theme";
 import logo from "/assets/logo.png";
 import { useDojo } from "@/dojo/useDojo";
 import { usePlayer } from "@/hooks/usePlayer";
-import { Signup } from "../actions/Signup";
 import { AccountPannel } from "../modules/AccountPannel";
 import { GamePannel } from "../modules/GamePannel";
 

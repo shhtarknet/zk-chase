@@ -20,7 +20,7 @@ import { User } from "lucide-react";
 import { Rename } from "../actions/Rename";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useDojo } from "@/dojo/useDojo";
-import { Signup } from "../actions/Signup";
+import { Signup } from "../actions/signup";
 
 export const AccountPannel = () => {
   const {
