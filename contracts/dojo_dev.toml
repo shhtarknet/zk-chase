@@ -1,5 +1,5 @@
 [world]
-name = "ZK-Chase"
+name = "zkchase-v0"
 description = "A fully on-chain chase game."
 cover_uri = "file://assets/cover.png"
 icon_uri = "file://assets/icon.png"
