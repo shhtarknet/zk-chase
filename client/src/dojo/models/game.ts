@@ -1,4 +1,5 @@
 import { ComponentValue } from "@dojoengine/recs";
+import { MAP_WIDTH } from "../constants";
 
 export class Game {
   public id: number;
@@ -13,5 +14,13 @@ export class Game {
     this.treasury = game.treasury;
     this.chasers = game.chasers;
     this.seed = game.seed.toString(16);
+  }
+
+  getTreasuryX() {
+    return this.treasury % MAP_WIDTH;
+  }
+
+  getTreasuryY() {
+    return Math.floor(this.treasury / MAP_WIDTH);
   }
 }

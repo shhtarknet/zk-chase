@@ -8,7 +8,8 @@ class GameManager {
   public chasers: Chaser[] = [];
   public create: () => void = () => {};
   public join: (gameId: number) => void = (gameId) => {};
-  public move: (direction: number) => void = (direction) => {};
+  public move: (direction: number) => Promise<void> = async (direction) => {};
+  public processing: boolean = false;
 
   constructor() {
     if (GameManager.instance) {
@@ -27,6 +28,7 @@ class GameManager {
   setGame(game: Game | null) {
     if (!game) return;
     this.game = game;
+    this.processing = false;
   }
 
   setChaser(chaser: Chaser | null) {
@@ -46,7 +48,7 @@ class GameManager {
     GameManager.instance.join = action;
   }
 
-  setMove(action: (direction: number) => void) {
+  setMove(action: (direction: number) => Promise<void>) {
     GameManager.instance.move = action;
   }
 
@@ -66,18 +68,22 @@ class GameManager {
   }
 
   callMoveUp() {
+    this.processing = true;
     GameManager.instance.callMove(1);
   }
 
   callMoveDown() {
+    this.processing = true;
     GameManager.instance.callMove(2);
   }
 
   callMoveLeft() {
+    this.processing = true;
     GameManager.instance.callMove(3);
   }
 
   callMoveRight() {
+    this.processing = true;
     GameManager.instance.callMove(4);
   }
 }

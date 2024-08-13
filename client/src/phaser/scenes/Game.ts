@@ -3,10 +3,13 @@ import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
 import PlayerManager from "../managers/player";
 import GameManager from "../managers/game";
+import Treasury from "../components/treasury";
 
 export class Game extends Scene {
   map: Phaser.Tilemaps.Tilemap | null = null;
   player: Character | null = null;
+  chasers: Character[] = [];
+  treasury: Treasury | null = null;
   layer: string = "";
   leave: boolean = false;
   animatedTiles: any = undefined;
@@ -71,9 +74,22 @@ export class Game extends Scene {
         maxX: this.map.widthInPixels - 2 * size,
         maxY: this.map.heightInPixels - 2 * size,
       },
+      true,
     );
     this.player = this.add.existing(character);
+    this.player.setVisible(false);
     const hitbox = this.physics.add.existing(this.player.hitbox);
+
+    // Treasury
+    const game = GameManager.getInstance().game;
+    this.treasury = new Treasury(
+      this,
+      game?.getTreasuryX() || (3 * this.map.widthInPixels) / size / 7,
+      game?.getTreasuryY() || (3 * this.map.heightInPixels) / size / 7,
+      size,
+      size,
+    );
+    this.add.existing(this.treasury);
 
     // Triggers
     leave!.setTileIndexCallback([130], this.handleLeave, this);
@@ -121,15 +137,53 @@ export class Game extends Scene {
     this.physics.add.overlap(hitbox, southeast!);
     this.physics.add.overlap(hitbox, southwest!);
 
+    // Depths
+    this.treasury.setDepth(0);
+    this.chasers.forEach((chaser) => chaser.setDepth(2));
+    this.player.setDepth(4);
+
     // Events
     EventBus.emit("current-scene-ready", this);
   }
 
-  update(time: number, delta: number) {
-    // const player = PlayerManager.getInstance().player;
+  update() {
+    // Update trasury
+    const game = GameManager.getInstance().game;
+    if (!!game && !!this.treasury) {
+      this.treasury.update(game.getTreasuryX(), game.getTreasuryY());
+    }
+    // Update player
     const chaser = GameManager.getInstance().chaser;
     if (!!chaser) {
+      this.player?.setVisible(true);
       this.player?.update(chaser);
+    }
+    // Update chasers
+    const chasers = GameManager.getInstance().chasers;
+    if (chasers.length !== this.chasers.length) {
+      this.chasers = chasers.map((chaser) => {
+        const size = this.map!.tileWidth;
+        const character = new Character(
+          this,
+          (size * 3) / 4,
+          (size * 3) / 4,
+          (size * 3) / 4,
+          size,
+          {
+            minX: 0,
+            minY: 0,
+            maxX: this.map!.widthInPixels - 2 * size,
+            maxY: this.map!.heightInPixels - 2 * size,
+          },
+          false,
+        );
+        return this.add.existing(character);
+      });
+    }
+    if (this.chasers.length) {
+      this.chasers.forEach((chaser, index) => {
+        chaser.update(chasers[index]);
+      });
     }
     // Update layer's alpha according to the player position
     if (!this.player || !this.map) return;
@@ -150,6 +204,7 @@ export class Game extends Scene {
     if (this.layer === name) return;
     this.layer = name;
     console.log("Enter", this.layer);
+    this.player!.hide();
     const layer = this.map!.getLayer(this.layer)?.tilemapLayer;
     layer!.alpha = 0.5;
   }
@@ -161,6 +216,7 @@ export class Game extends Scene {
       return;
     }
     console.log("Leave", this.layer);
+    this.player!.show();
     const layer = this.map!.getLayer(this.layer)?.tilemapLayer;
     layer!.alpha = 1;
     this.layer = "";

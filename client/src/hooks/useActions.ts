@@ -21,7 +21,7 @@ export const useActions = () => {
     playerId: player?.id,
     gameId: player?.gameId,
   });
-  const { chasers } = useChasers({ gameId: player?.gameId });
+  const { chasers } = useChasers({ gameId: game?.id });
 
   const handleSignup = useCallback(
     async (name: string) => {

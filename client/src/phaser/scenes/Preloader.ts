@@ -25,10 +25,20 @@ export class Preloader extends Scene {
   }
 
   preload() {
-    // Units
+    // Objects
     this.load.spritesheet("assassin-black", "assets/units/assassin-black.png", {
       frameWidth: 32,
       frameHeight: 32,
+    });
+    // Units
+    this.load.spritesheet("treasury", "assets/objects/treasury.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    // Effects
+    this.load.spritesheet("smoke", "assets/effects/smoke.png", {
+      frameWidth: 16,
+      frameHeight: 16,
     });
   }
 
