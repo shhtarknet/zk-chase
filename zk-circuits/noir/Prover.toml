@@ -1,0 +1,12 @@
+move = "2"
+prev_pos = "0x705"
+prev_pos_hash = "0x20bf93fed0cd4e18e2047e805c919323fab342f3cdc7107edcb39f5731e2b35c"
+salt = "2134924215"
+
+[map1]
+lo = "0xf31e01c1ce703398"
+hi = "0x018630739f9feef3"
+
+[map0]
+lo = "0xf3ddfe7e73831860"
+hi = "0x0673039ce0e01e33"

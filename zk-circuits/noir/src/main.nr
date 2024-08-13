@@ -1,11 +1,31 @@
-use std::hash::keccak256;
-
 global COLS = 18;
 global ROWS = 14;
 
 // hashes two inputs
 fn hash(val: Field, salt: Field) -> Field {
-    std::hash::mimc::mimc_bn254([val, salt])
+    // let mut slt = salt as u64;
+    // let val = val as u64;
+    let salts = [
+        0xf8bf3bd6c22ba3b1bf3ab2e3fb40818cd4217ffbaf294ca42331d4e3043a0a6,
+        0x388c9fcf30fc2841d648f46bad01dd10bee9dc184d25eabc9f617021109cec3,
+        0x2bb7f397c5941ac67befa8b232f15c8853dac263da793555441a90cec83b6454,
+        0x17f389b52f9ea7a98874a4a31ef6a7beb43fb17db0e499250bb3f0181c59fb21,
+        0x3a2090eacb897a31fb10561d560a9aeec24b7ad14d17b145f20c875a0b28c7c,
+        0xc398534f0eb580f1fe4bf64553389e67cca4714399430e09619dcbee17ba099,
+        0x7095ac9fda46afa7f181259e3635feffa7f11ee63f3ee777a5cebf4822328c4,
+        0x2046f7cf1c8f13ef2b69cbc8bc0d5d809f82568abe2b33d1cd060958b1ced683,
+    ];
+
+    let v = val * val + salt * salt;
+    let v = v * (salt + salts[0]);
+    let v = v * v * (salt + salts[1]);
+    let v = v * v * v * (salt + salts[2]);
+    let v = v * v * v * v * (salt + salts[3]);
+    let v = v * v * v * v * v * (salt + salts[4]);
+    let v = v * v * v * v * v * v * (salt + salts[5]);
+    let v = v * v * v * v * v * v * v * (salt + salts[6]);
+    let v = v * v * v * v * v * v * v * v * (salt + salts[7]);
+    v
 }
 
 fn expand_position(position: Field) -> (u8, u8) {
@@ -40,6 +60,12 @@ fn make_move(prev_pos: Field, move: u8) -> (u8, u8) {
 fn map_bit(map0: U128, map1: U128, x: u8, mut y: u8) -> u8 {
     let mut map = map0;
     let mut bit: u8 = y * COLS + x;
+    // print(x);
+    // print(" ");
+    // print(y);
+    // print(" ");
+    // print(bit);
+    // print(" ");
 
     // print("bit[ ");
     // print(bit);
@@ -55,6 +81,7 @@ fn map_bit(map0: U128, map1: U128, x: u8, mut y: u8) -> u8 {
     let mut total_bits: u8 = 63;
     // print(" ~ ");
     // print(bit);
+    // print(" ");
     if bit > 63 {
         map_part = map.hi as u64;
         bit -= 64;
@@ -64,11 +91,16 @@ fn map_bit(map0: U128, map1: U128, x: u8, mut y: u8) -> u8 {
     // bits to drop, everything after the reqd bit
     let mut drop_bits = bit;
     // print(" ] ");
-    let divide_drop_bits: u64 = 1 << (drop_bits);
+    let divide_drop_bits: u64 = 1 as u64 << (drop_bits as u64);
     // divide by power of two to drop lower bits
-    let remainder_map = map_part / divide_drop_bits;
+    let remainder_map = map_part / divide_drop_bits as u64;
     // drop higher bits
     let bit = remainder_map % 2;
+
+    // print("map: ");
+    // print(map_part);
+    // print(" bit: ");
+    // print(bit);
 
     bit as u8
 }
@@ -99,11 +131,11 @@ fn main(
     let (x, y) = make_move(prev_pos, move);
 
     // Step 3: Assert move is in the bush
-    assert(1 == map_bit(map0, map1, x, y));
+    let bush = map_bit(map0, map1, x, y);
+    assert(1 == bush);
 
     // Step 4: Output new public hash
     let pos = compress_position(x, y);
-    println(pos);
 
     hash(pos, salt)
 }
@@ -179,6 +211,10 @@ mod test {
 
         let prev_pos = 0x705;
         let prev_pos_hash = hash(prev_pos, salt);
+        // print("pre_hash: ");
+        // println(prev_pos_hash);
+        // print("post_hash: ");
+        // println(hash(0x704, salt));
         let move = 2;
         let result = main(MAP1, MAP0, prev_pos_hash, prev_pos, move, salt);
         assert(result == hash(0x704, salt));
