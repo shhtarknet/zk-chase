@@ -1,5 +1,6 @@
 import { ComponentValue } from "@dojoengine/recs";
 import { MAP_WIDTH } from "../constants";
+import { getEntityIdFromKeys } from "@dojoengine/utils";
 
 export class Chaser {
   public playerId: string;
@@ -26,5 +27,12 @@ export class Chaser {
 
   getY() {
     return Math.floor(this.position / MAP_WIDTH);
+  }
+
+  getKey(): string {
+    return getEntityIdFromKeys([
+      BigInt(this.playerId),
+      BigInt(this.gameId),
+    ]) as string;
   }
 }

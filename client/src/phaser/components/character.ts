@@ -1,7 +1,9 @@
 import { Chaser } from "@/dojo/models/chaser";
 import GameManager from "../managers/game";
+import { set } from "mobx";
 
 const SPEED: number = 1;
+const ALPHA_SPEED: number = 0.01;
 
 export default class Character extends Phaser.GameObjects.Container {
   public hidden: boolean = false;
@@ -83,19 +85,38 @@ export default class Character extends Phaser.GameObjects.Container {
   }
 
   bind() {
-    const W = this.scene.input.keyboard!.addKey("W");
-    const A = this.scene.input.keyboard!.addKey("A");
-    const S = this.scene.input.keyboard!.addKey("S");
-    const D = this.scene.input.keyboard!.addKey("D");
+    // Keyboard arrows
+    const Up = this.scene.input.keyboard!.addKey("UP");
+    const Down = this.scene.input.keyboard!.addKey("DOWN");
+    const Left = this.scene.input.keyboard!.addKey("LEFT");
+    const Right = this.scene.input.keyboard!.addKey("RIGHT");
+
     // Listeners
-    W.on("down", () => this.move("UP"));
-    A.on("down", () => this.move("LEFT"));
-    S.on("down", () => this.move("DOWN"));
-    D.on("down", () => this.move("RIGHT"));
+    Up.on("down", () => this.move("UP"));
+    Down.on("down", () => this.move("DOWN"));
+    Left.on("down", () => this.move("LEFT"));
+    Right.on("down", () => this.move("RIGHT"));
   }
 
   update(chaser: Chaser) {
     if (!this.visible) return;
+
+    if (!chaser.alive) {
+      const x = this.step * chaser.getX() + this.offset;
+      const y = this.step * chaser.getY() + this.offset;
+      this.character.play("assassin-black-death", true);
+      if (this.character.x !== x || this.character.y !== y) {
+        this.character.x = x;
+        this.character.y = y;
+        this.hitbox.x = this.character.x;
+        this.hitbox.y = this.character.y;
+      }
+      if (this.alpha > 0) {
+        const alpha = this.alpha - Math.min(this.alpha, ALPHA_SPEED);
+        this.setAlpha(alpha);
+      }
+      return;
+    }
 
     if (GameManager.getInstance().processing && this.binded) {
       this.stand("DOWN");
@@ -107,18 +128,8 @@ export default class Character extends Phaser.GameObjects.Container {
       const x = this.step * chaser.getX() + this.offset;
       const y = this.step * chaser.getY() + this.offset;
       if (this.character.x !== x || this.character.y !== y) {
-        this.character.x = this.step * chaser.getX() + this.offset;
-        this.character.y = this.step * chaser.getY() + this.offset;
-        this.shadow1.x = this.character.x;
-        this.shadow1.y = this.character.y;
-        this.shadow2.x = this.character.x;
-        this.shadow2.y = this.character.y;
-        this.shadow3.x = this.character.x;
-        this.shadow3.y = this.character.y;
-        this.hitbox.x = this.character.x;
-        this.hitbox.y = this.character.y;
-        this.smoke.x = this.character.x;
-        this.smoke.y = this.character.y;
+        this.target = { x, y };
+        return;
       }
       // Update animation
       if (this.animation !== "assassin-black-idle") {

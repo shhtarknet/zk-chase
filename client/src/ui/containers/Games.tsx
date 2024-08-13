@@ -1,7 +1,7 @@
 import { useGames } from "@/hooks/useGames";
-import { Join } from "@/ui/actions/join";
+import { Join } from "@/ui/actions/Join";
 import { Carousel, CarouselContent } from "@/ui/elements/carousel";
-import { Create } from "../actions/create";
+import { Create } from "../actions/Create";
 
 export const Games = () => {
   const { games } = useGames();

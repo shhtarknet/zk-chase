@@ -8,14 +8,9 @@ import {
 } from "@/ui/elements/sheet";
 import { Button } from "../elements/button";
 import { Menu } from "lucide-react";
-import { Signup } from "../actions/signup";
-import { useGames } from "@/hooks/useGames";
-import { Create } from "../actions/create";
 import { Games } from "../containers/Games";
 
 export const GamePannel = () => {
-  const { games } = useGames();
-
   return (
     <Sheet>
       <SheetTrigger asChild className="cursor-pointer">

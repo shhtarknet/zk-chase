@@ -5,7 +5,7 @@ class GameManager {
   static instance: GameManager;
   public game: Game | null = null;
   public chaser: Chaser | null = null;
-  public chasers: Chaser[] = [];
+  public chasers: { [key: string]: Chaser } = {};
   public create: () => void = () => {};
   public join: (gameId: number) => void = (gameId) => {};
   public move: (direction: number) => Promise<void> = async (direction) => {};
@@ -37,7 +37,9 @@ class GameManager {
   }
 
   setChasers(chasers: Chaser[]) {
-    this.chasers = chasers;
+    chasers.forEach((chaser) => {
+      this.chasers[chaser.getKey()] = chaser;
+    });
   }
 
   setCreate(action: () => void) {

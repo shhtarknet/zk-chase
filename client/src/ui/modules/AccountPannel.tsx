@@ -17,8 +17,18 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { Button } from "../elements/button";
 import { User } from "lucide-react";
+import { Rename } from "../actions/Rename";
+import { usePlayer } from "@/hooks/usePlayer";
+import { useDojo } from "@/dojo/useDojo";
+import { Signup } from "../actions/Signup";
 
 export const AccountPannel = () => {
+  const {
+    account: { account },
+  } = useDojo();
+
+  const { player } = usePlayer({ playerId: account.address });
+
   const links = useMemo(
     () => [
       {
@@ -58,6 +68,11 @@ export const AccountPannel = () => {
             <div className="flex flex-col gap-2 items-start">
               <p className="text-2xl">Account</p>
               <Account />
+            </div>
+            <div className="flex flex-col gap-2 items-start">
+              <p className="text-2xl">Profile</p>
+              {!player && <Signup />}
+              {!!player && <Rename />}
             </div>
           </div>
         </SheetHeader>
