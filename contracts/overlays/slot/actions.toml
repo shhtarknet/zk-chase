@@ -1,0 +1,2 @@
+tag = "zkchase-actions"
+writes = ["zkchase-Player", "zkchase-Game", "zkchase-Chaser"]
