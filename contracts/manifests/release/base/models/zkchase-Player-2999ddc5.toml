@@ -1,0 +1,21 @@
+kind = "DojoModel"
+class_hash = "0x5d2da63fed33e7df27075238f5734a35129978d7f70165214db3a34f39d7948"
+original_class_hash = "0x5d2da63fed33e7df27075238f5734a35129978d7f70165214db3a34f39d7948"
+abi = "manifests/release/base/abis/models/zkchase-Player-2999ddc5.json"
+tag = "zkchase-Player"
+manifest_name = "zkchase-Player-2999ddc5"
+
+[[members]]
+name = "id"
+type = "felt252"
+key = true
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "name"
+type = "felt252"
+key = false

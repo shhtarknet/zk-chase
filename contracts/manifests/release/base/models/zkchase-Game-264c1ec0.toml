@@ -1,0 +1,31 @@
+kind = "DojoModel"
+class_hash = "0x61b05d69f4433bd974d309fae640323ca047e31710c0b0f0d99f67088060a19"
+original_class_hash = "0x61b05d69f4433bd974d309fae640323ca047e31710c0b0f0d99f67088060a19"
+abi = "manifests/release/base/abis/models/zkchase-Game-264c1ec0.json"
+tag = "zkchase-Game"
+manifest_name = "zkchase-Game-264c1ec0"
+
+[[members]]
+name = "id"
+type = "u32"
+key = true
+
+[[members]]
+name = "map_id"
+type = "u8"
+key = false
+
+[[members]]
+name = "treasury"
+type = "u8"
+key = false
+
+[[members]]
+name = "chasers"
+type = "felt252"
+key = false
+
+[[members]]
+name = "seed"
+type = "felt252"
+key = false
