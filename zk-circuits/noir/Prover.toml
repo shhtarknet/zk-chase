@@ -1,6 +1,6 @@
 move = "2"
 prev_pos = "0x705"
-prev_pos_hash = "0x20bf93fed0cd4e18e2047e805c919323fab342f3cdc7107edcb39f5731e2b35c"
+prev_pos_hash = "0x1ff93a22ebf9b6c02df123d028598a51a2f3ce93c675b5d4a8d7ae4de5953a18"
 salt = "2134924215"
 
 [map1]

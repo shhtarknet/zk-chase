@@ -224,8 +224,6 @@ mod test {
 
         let prev_pos = 0x705;
         let prev_pos_hash = hash(prev_pos, salt);
-        print("pre_hash: ");
-        println(prev_pos_hash);
         // print("post_hash: ");
         // println(hash(0x704, salt));
         let move = 2;
