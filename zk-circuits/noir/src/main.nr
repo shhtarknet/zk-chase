@@ -1,6 +1,14 @@
 global COLS = 18;
 global ROWS = 14;
 
+fn sq(x: Field) -> Field {
+    x * x
+}
+
+fn cu(x: Field) -> Field {
+    x * x * x
+}
+
 // hashes two inputs
 fn hash(val: Field, salt: Field) -> Field {
     // let mut slt = salt as u64;
@@ -16,15 +24,20 @@ fn hash(val: Field, salt: Field) -> Field {
         0x2046f7cf1c8f13ef2b69cbc8bc0d5d809f82568abe2b33d1cd060958b1ced683,
     ];
 
-    let v = val * val + salt * salt;
-    let v = v * (salt + salts[0]);
-    let v = v * v * (salt + salts[1]);
-    let v = v * v * v * (salt + salts[2]);
-    let v = v * v * v * v * (salt + salts[3]);
-    let v = v * v * v * v * v * (salt + salts[4]);
-    let v = v * v * v * v * v * v * (salt + salts[5]);
-    let v = v * v * v * v * v * v * v * (salt + salts[6]);
-    let v = v * v * v * v * v * v * v * v * (salt + salts[7]);
+    let v = val * salts[0];
+    let v = v * v * v * (salt + salts[1]); // v ** 3
+    let v = sq(sq(v)) * v * (salt + salts[2]); // v ** 5
+    let v2 = sq(v);
+    let v = cu(v2) * v * (salt + salts[3]); // v ** 7
+    let v2 = sq(v);
+    let v4 = sq(v2);
+    let v = sq(v4) * v2 * v * (salt + salts[5]); // v ** 11
+    let v4 = sq(sq(v));
+    let v = cu(v4) * v * (salt + salts[6]); // v ** 13
+    let v = sq(sq(sq(sq(v)))) * v * (salt + salts[7]); // v ** 17
+    let v2 = sq(v);
+    let v = sq(sq(sq(v2))) * v2 * v * (salt + salts[7]); // v ** 19
+
     v
 }
 
@@ -211,8 +224,8 @@ mod test {
 
         let prev_pos = 0x705;
         let prev_pos_hash = hash(prev_pos, salt);
-        // print("pre_hash: ");
-        // println(prev_pos_hash);
+        print("pre_hash: ");
+        println(prev_pos_hash);
         // print("post_hash: ");
         // println(hash(0x704, salt));
         let move = 2;
