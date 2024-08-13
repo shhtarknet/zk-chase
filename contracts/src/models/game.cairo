@@ -42,11 +42,9 @@ impl GameImpl of GameTrait {
     #[inline]
     fn move(ref self: Game, position: u8, new_position: u8) {
         // [Effect] Update chaser positions
-        let index = new_position - 1;
         let bitmap: u256 = self.chasers.into();
-        let bitmap: u256 = Bitmap::set_bit_at(bitmap, index, true);
-        let index = position - 1;
-        let bitmap: u256 = Bitmap::set_bit_at(bitmap, index, false);
+        let bitmap: u256 = Bitmap::set_bit_at(bitmap, new_position, true);
+        let bitmap: u256 = Bitmap::set_bit_at(bitmap, position, false);
         self.chasers = bitmap.try_into().unwrap();
     }
 
@@ -54,8 +52,7 @@ impl GameImpl of GameTrait {
     fn assess_busy(self: Game, position: u8) -> bool {
         // [Return] Kill status
         let bitmap: u256 = self.chasers.into();
-        let index = position - 1;
-        let is_busy = Bitmap::get_bit_at(bitmap, index);
+        let is_busy = Bitmap::get_bit_at(bitmap, position);
         is_busy
     }
 
@@ -87,9 +84,8 @@ impl GameImpl of GameTrait {
         let map: Map = self.map_id.into();
         let position: u8 = map.spawn(self.seed);
         // [Effect] Update chaser positions
-        let index = position - 1;
         let bitmap: u256 = self.chasers.into();
-        self.chasers = Bitmap::set_bit_at(bitmap, index, true).try_into().unwrap();
+        self.chasers = Bitmap::set_bit_at(bitmap, position, true).try_into().unwrap();
         // [Effect] Update seed
         self.seed = self.reseed();
         // [Return] Spawn position
@@ -165,7 +161,7 @@ mod tests {
     fn test_game_move() {
         let mut game = GameTrait::new(GAME_ID, MAP, SEED);
         game.chasers = 0b00000001;
-        game.move(1, 2);
+        game.move(0, 1);
         assert_eq!(game.chasers, 0b00000010);
     }
 
@@ -173,16 +169,16 @@ mod tests {
     fn test_game_assess_busy() {
         let mut game = GameTrait::new(GAME_ID, MAP, SEED);
         game.chasers = 0b00000001;
-        assert_eq!(game.assess_busy(1), true);
-        assert_eq!(game.assess_busy(2), false);
+        assert_eq!(game.assess_busy(0), true);
+        assert_eq!(game.assess_busy(1), false);
     }
 
     #[test]
     fn test_game_assess_treasury() {
         let mut game = GameTrait::new(GAME_ID, MAP, SEED);
-        game.treasury = 1;
-        assert_eq!(game.assess_treasury(1), true);
-        assert_eq!(game.assess_treasury(2), false);
+        game.treasury = 0;
+        assert_eq!(game.assess_treasury(0), true);
+        assert_eq!(game.assess_treasury(1), false);
     }
 
     #[test]
