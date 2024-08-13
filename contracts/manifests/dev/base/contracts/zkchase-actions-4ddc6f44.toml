@@ -1,11 +1,10 @@
 kind = "DojoContract"
-class_hash = "0x43f8178ae4021364516493729a8e8ff5b589d29eae32903354eb7b63c21e0d1"
-original_class_hash = "0x43f8178ae4021364516493729a8e8ff5b589d29eae32903354eb7b63c21e0d1"
+class_hash = "0x707df706a381cfd5eb569f26e87f873fc254f2364ded621059ed2ee8e2544d0"
+original_class_hash = "0x707df706a381cfd5eb569f26e87f873fc254f2364ded621059ed2ee8e2544d0"
 base_class_hash = "0x0"
 abi = "manifests/dev/base/abis/contracts/zkchase-actions-4ddc6f44.json"
 reads = []
 writes = []
-computed = []
 init_calldata = []
 tag = "zkchase-actions"
 manifest_name = "zkchase-actions-4ddc6f44"
